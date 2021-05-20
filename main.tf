@@ -2,6 +2,23 @@ variable "instance_type" {
   default = "t3.micro"
   type    = string
 }
+
+variable "subnet" {
+  default = ""
+  type    = string
+}
+variable "name" {
+  default = ""
+  type    = string
+}
+
+data "aws_subnet" "subnet" {
+  filter {
+    name   = "tag:Name"
+    values = ["${var.subnet}"]
+  }
+}
+
 data "aws_ami" "ubuntu" {
   most_recent = true
   filter {
@@ -17,7 +34,8 @@ data "aws_ami" "ubuntu" {
 resource "aws_instance" "web" {
   ami           = data.aws_ami.ubuntu.id
   instance_type = var.instance_type
+  subnet_id     = data.aws_subnet.subnet.id
   tags = {
-    Name = "HelloWorld"
+    Name = "${var.name}"
   }
 }
